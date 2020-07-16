@@ -27,8 +27,8 @@ class CommentForm extends Component{
     }
     
     handleSubmit(values){
-        console.log("Current state is: "+ JSON.stringify(values));
-        alert("Current state is: "+ JSON.stringify(values));
+        this.toggleModal();
+        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
     }
 
     render(){
@@ -96,21 +96,52 @@ class CommentForm extends Component{
     };
 }
 
+function RenderComments({comments, addComment, dishId}){
 
+    if(comments != null){
+
+        const allcomment = comments.map((comm) => {
+            return(
+                <div className="container">
+                <div key={comm.id}>
+                    <p>{comm.comment}</p>
+                    <p>--{comm.author},   {new Intl.DateTimeFormat('en-US',{ year: 'numeric', month:'short', day:'2-digit'}).format(new Date(Date.parse(comm.date)))}</p>
+                </div>
+                </div>
+            );
+        });
+        
+        return(
+            <div className="col-12 col-md-5 mt-1">
+                <h2>Comments</h2>
+                {allcomment}
+                <CommentForm addComment={addComment} dishId={dishId} />    
+            </div>
+        )
+    }
+    else{
+        return(
+            <div></div>
+        );
+    }
+}
+
+function RenderDish({dish}) {
+    return(
+        <div className="col-12 col-md-5 mt-1">
+            <Card>
+                <CardImg width="100%" src={dish.image} alt={dish.name} />
+                <CardBody>
+                    <CardTitle>{dish.name}</CardTitle>
+                    <CardText>{dish.description}</CardText>
+                </CardBody>
+            </Card>
+        </div>
+    )
+}
 
 const DishDetail = (props) => {
-        if(props.dish != null){
-
-            const allcomment = props.comments.map((comm) => {
-                return(
-                    <div className="container">
-                    <div key={comm.id}>
-                        <p>{comm.comment}</p>
-                        <p>--{comm.author},   {new Intl.DateTimeFormat('en-US',{ year: 'numeric', month:'short', day:'2-digit'}).format(new Date(Date.parse(comm.date)))}</p>
-                    </div>
-                    </div>
-                );
-            }); 
+        
 
             return(
                 <div className="container">
@@ -125,29 +156,15 @@ const DishDetail = (props) => {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-12 col-md-5 mt-1">
-                            <Card>
-                                <CardImg width="100%" src={props.dish.image} alt={props.dish.name} />
-                                <CardBody>
-                                    <CardTitle>{props.dish.name}</CardTitle>
-                                    <CardText>{props.dish.description}</CardText>
-                                </CardBody>
-                            </Card>
-                        </div>
-                        <div className="col-12 col-md-5 mt-1">
-                            <h2>Comments</h2>
-                            {allcomment}
-                            <CommentForm />
-                        </div>
+                        <RenderDish dish={props.dish} />
+                        <RenderComments comments={props.comments}
+                                addComment={props.addComment}
+                                dishId={props.dish.id} />
                     </div>
                 </div>
             );
-        }
-        else{
-            return(
-                <div></div>
-            );
-        }
+        
+        
     };
 
 
